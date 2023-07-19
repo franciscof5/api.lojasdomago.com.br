@@ -18,7 +18,7 @@ from django.core import serializers
 
 global GLOBAL_VAR_X
 
-path = "/code/anuncios-controle/usados/"
+path = "/code/anuncios-controle/anuncios-prontos/lojasdomago-instagram/"
 
 class TodoListApiView(APIView):
     # add permission to check if user is authenticated
@@ -37,7 +37,7 @@ class TodoListApiView(APIView):
         path_to_json_without_nested(path)
         json_dir2  = GLOBAL_VAR_X;
         json_dir2 = GLOBAL_VAR_X[0:-1]+"]"
-        json_object = json.loads(json_dir2)
+        json_object = json.loads(json_dir)
         return Response(json_object, status=status.HTTP_200_OK)
 
 
