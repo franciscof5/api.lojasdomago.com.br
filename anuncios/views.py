@@ -34,38 +34,42 @@ def index(request):
 
 def path_to_json(path):
     if os.path.basename(path)!=".DS_Store":
-        d = {'name': os.path.basename(path)}
+        nivel = path.count('/')-3
+        filename = os.path.basename(path)
+        product_name = filename.split("R$")[0].strip()
+        d = {'name': product_name}
+        #if os.path.basename(path).find("R$"):
+        if nivel==1:
+            price = 0
+            tem_preco_definido = len(filename.split("R$"))
+            if tem_preco_definido>1:
+                price = filename.split("R$")[1].split("|")[0].strip()
+                #price = price[1]
+
+            local="local indefindo"
+            tem_local_definido = len(filename.split("Local="))
+            if tem_local_definido>1:
+                local=filename.split("Local=")[1].split("|")[0].strip()
+            
+            category="categoria indefindo"
+            tem_category_definido = len(filename.split("Cat="))
+            if tem_local_definido>1:
+                category=filename.split("Cat=")[1].strip()
+            
+            d['price'] = price
+            d['local'] = local
+            d['cat'] = category
         d['path'] = path
-        d['x'] = path.count('/')-3
+        d['x'] = nivel
         if os.path.isdir(path):
             d['type'] = "directory"
             #usar o reverso só nas fotos do produto, não na listagem
-            if (path.count('|')):
-                d['children'] = [path_to_json(os.path.join(path,x)) for x in  sorted(os.listdir(path), key=str.casefold ) if not x.startswith('.') ]
-            else:
-                d['children'] = [path_to_json(os.path.join(path,x)) for x in  sorted(os.listdir(path), key=str.casefold ) if not x.startswith('.') ]
+            d['pictures'] = [path_to_json(os.path.join(path,x)) for x in  sorted(os.listdir(path), key=str.casefold ) if not x.startswith('.') ]
         else:
             d['type'] = "file"
     else:
         d = {'name': 'nps'}
     return d
-
-def path_to_json_without_nested(path):
-    global GLOBAL_VAR_X
-    if(os.path.basename(path)!=".DS_Store" and os.path.basename(path)!=".htaccess"):
-        GLOBAL_VAR_X+= '{ "name": "'+os.path.basename(path)+'"'
-        GLOBAL_VAR_X+=', "path": "' + path + '"'
-        #GLOBAL_VAR_X+=', "x": "' + path + '"'
-        nivel = str(path.count('/')-3)
-        GLOBAL_VAR_X+=', "x": "' + nivel + '"'
-        
-        if not os.path.isdir(path):
-            GLOBAL_VAR_X+=', "type": "file" },'            
-        else:
-            GLOBAL_VAR_X+=', "type": "directory" },'
-
-            [path_to_json_without_nested(os.path.join(path,x)) for x in os.listdir\
-                               (path)]
 
 def renderHTML(refer):
     global GLOBAL_VAR_X
