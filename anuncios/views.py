@@ -56,7 +56,7 @@ def path_to_json(path):
             if tem_local_definido>1:
                 category=filename.split("Cat=")[1].strip()
             
-            d['price'] = price
+            d['price'] = float(price)
             d['local'] = local
             d['cat'] = category
         d['path'] = path
@@ -73,8 +73,9 @@ def path_to_json(path):
 
 def renderHTML(refer):
     global GLOBAL_VAR_X
-    GLOBAL_VAR_X="["
-
+    #GLOBAL_VAR_X="["
+    GLOBAL_VAR_X=[]
+    path_trocar = "/code/anuncios-controle/"
     for i in os.scandir(path):
         if i.is_file() and i.path.lower().endswith(('.jpg')) and not i.path.lower().endswith(('_lowquality.jpg')):
             #Using UNIX filesystem
@@ -94,6 +95,29 @@ def renderHTML(refer):
             GLOBAL_VAR_X.append('<h3>' + trocado + '</h3>')
             dir_scan(i.path)
 
+    return HttpResponse(GLOBAL_VAR_X)
 
-    return HttpResponse(json_object)
+def dir_scan(path):
+    global GLOBAL_VAR_X
+    
+    path_trocar = "/code/anuncios-controle/"
+    #text="dir_scan"
+    for i in os.scandir(path):
+        if i.is_file() and i.path.lower().endswith(('.jpg')) and not i.path.lower().endswith(('_lowquality.jpg')):
+            #Using UNIX filesystem
+            imagem_lowquality = i.path[0:-4] + "_lowquality.jpg"
+            if not os.path.isfile(imagem_lowquality) :
+                foo = Image.open(i.path) 
+                foo = foo.resize((300,300),Image.ANTIALIAS)
+                foo.save(imagem_lowquality, optimize=True, quality=75)
+            
+            #GLOBAL_VAR_X.append('<p>' + trocadonew + '</p>')
+            #trocado = i.path
+            trocado = imagem_lowquality.replace(path_trocar, "/static/")
+
+            GLOBAL_VAR_X.append('<img src="' + trocado + '" width="200">') 
+        elif i.is_dir():
+            trocado = i.path.replace(path_trocar + "usados/", "")
+            GLOBAL_VAR_X.append('<h3>' + trocado + '</h3>')
+            dir_scan(i.path)
 #print json.dumps(path_to_dict('.'))
